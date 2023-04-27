@@ -65,24 +65,32 @@ class Client:
 		# Create Setup button
 		self.setup = Button(self.master, width=20, padx=3, pady=3)
 		self.setup["text"] = "Setup"
+		self.setup["bg"] = "#C8730A"
+		self.setup["fg"] = "white"
 		self.setup["command"] = self.setupMovie
 		self.setup.grid(row=2, column=0, padx=2, pady=2)
 		
 		# Create Play button		
 		self.start = Button(self.master, width=20, padx=3, pady=3)
 		self.start["text"] = "Play"
+		self.start["bg"] = "#0C795C"
+		self.start["fg"] = "white"
 		self.start["command"] = self.playMovie
 		self.start.grid(row=2, column=1, padx=2, pady=2)
 		
 		# Create Pause button			
 		self.pause = Button(self.master, width=20, padx=3, pady=3)
 		self.pause["text"] = "Pause"
+		self.pause["bg"] = "#caae38"
+		self.pause["fg"] = "white" 
 		self.pause["command"] = self.pauseMovie
 		self.pause.grid(row=2, column=2, padx=2, pady=2)
 		
 		# Create Teardown button
 		self.teardown = Button(self.master, width=20, padx=3, pady=3)
 		self.teardown["text"] = "Teardown"
+		self.teardown["bg"] = "#3A8EDB"
+		self.pause["fg"] = "white"
 		self.teardown["command"] = self.resetMovie
 		self.teardown.grid(row=2, column=3, padx=2, pady=2)
 		

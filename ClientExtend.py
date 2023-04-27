@@ -9,7 +9,7 @@ import time
 CACHE_FILE_NAME = "cache-"
 CACHE_FILE_EXT = ".jpg"
 
-class Client2:
+class ClientExtend:
     INIT = 0
     READY = 1
     PLAYING = 2
@@ -72,16 +72,16 @@ class Client2:
         # Create Play button
         self.start = Button(self.master, width=15, padx=3, pady=3)
         self.start["text"] = "Play ▶"
-        self.start["bg"] = "#56ff6d"
-        self.start["fg"] = "black"
+        self.start["bg"] = "#0C795C"
+        self.start["fg"] = "white"
         self.start["command"] = self.playMovie
         self.start.grid(row=2, column=0, padx=2, pady=2)
 
         # Create Pause button
         self.pause = Button(self.master, width=15, padx=3, pady=3)
         self.pause["text"] = "Pause ⏸"
-        self.pause["bg"] = "#f8ed54"
-        self.pause["fg"] = "black"
+        self.pause["bg"] = "#caae38"
+        self.pause["fg"] = "white"
         self.pause["command"] = self.pauseMovie
         self.pause.grid(row=2, column=1, padx=2, pady=2)
 
@@ -89,16 +89,16 @@ class Client2:
         self.stop = Button(self.master, width=15, padx=3, pady=3)
         self.stop["text"] = "Stop ■"
         self.stop["command"] = self.resetMovie
-        self.stop["bg"]= "#e05927"
-        self.stop["fg"] = "black"
+        self.stop["bg"]= "#ff0000"
+        self.stop["fg"] = "white"
         self.stop.grid(row=2, column=2, padx=2, pady=2)
 
         # Create Setup button
         self.describe = Button(self.master, width=15, padx=3, pady=3)
         self.describe["text"] = "Describe ★"
         self.describe["command"] = self.describeMovie
-        self.describe["bg"] = "#409dfa"
-        self.describe["fg"] = "black"
+        self.describe["bg"] = "#800080"
+        self.describe["fg"] = "white"
         self.describe["state"] = "disabled"
         self.describe.grid(row=2, column=3, padx=2, pady=2)
 
