@@ -1,6 +1,6 @@
 from tkinter import *
 import tkinter.messagebox
-from PIL import Image, ImageTk, ImageFilter, ImageEnhance
+from PIL import Image, ImageTk
 import socket, threading, sys, traceback, os
 import time
 from RtpPacket import RtpPacket
@@ -21,7 +21,7 @@ class Client:
 
 	checkSocketIsOpen = False
 	checkPlay = False
-	counter = 0
+	counter = 0 # Count lossed package
 
 	# Initiation..
 	def __init__(self, master, serveraddr, serverport, rtpport, filename):
@@ -39,60 +39,34 @@ class Client:
 		self.connectToServer()
 		self.frameNbr = 0
 		self.counter = 0
-		self.elapsedTime = 0
-		self.remainingTime = 0
 		## ---
-        
 
+	# THIS GUI IS JUST FOR REFERENCE ONLY, STUDENTS HAVE TO CREATE THEIR OWN GUI
 	def createWidgets(self):
 		"""Build GUI."""
-		# photo = ImageTk.PhotoImage(data=bytes.fromhex('89504e470d0a1a0a0000000d4948445200000001000000010100000000376ef9240000000a49444154789c636000000002000148afa4710000000049454e44ae426082'))
-		# self.label = Label(self.master, height=275, image=photo,
-        #                    bg="black", relief='ridge', bd=2)
-		# self.label.image = photo
-		# self.label.grid(row=0, column=0, columnspan=5, sticky=W+E+N+S, padx=5, pady=5)
-
-		# Create a label to display the elapsed time
-		self.eTimeLabel = Label(self.master, anchor=W, width=12, padx=3, pady=3, bg="white")
-		self.eTimeLabel["textvariable"] = "hello"
-		self.eTimeLabel.grid(row=1, column=0, padx=2, pady=2)
-
-        # Create a label to display the remaining time
-		self.eTimeLabel = Label(self.master, anchor=E, width=12, padx=3, pady=3, bg="white")
-		self.eTimeLabel["textvariable"] = "xin chao"
-		self.eTimeLabel.grid(row=1, column=4, padx=2, pady=2)
-
 		# Create Setup button
 		self.setup = Button(self.master, width=20, padx=3, pady=3)
 		self.setup["text"] = "Setup"
-		self.setup["bg"] = "#C8730A"
-		self.setup["fg"] = "white"
 		self.setup["command"] = self.setupMovie
-		self.setup.grid(row=2, column=0, padx=2, pady=2)
+		self.setup.grid(row=1, column=0, padx=2, pady=2)
 		
 		# Create Play button		
 		self.start = Button(self.master, width=20, padx=3, pady=3)
 		self.start["text"] = "Play"
-		self.start["bg"] = "#0C795C"
-		self.start["fg"] = "white"
 		self.start["command"] = self.playMovie
-		self.start.grid(row=2, column=1, padx=2, pady=2)
+		self.start.grid(row=1, column=1, padx=2, pady=2)
 		
 		# Create Pause button			
 		self.pause = Button(self.master, width=20, padx=3, pady=3)
 		self.pause["text"] = "Pause"
-		self.pause["bg"] = "#caae38"
-		self.pause["fg"] = "white" 
 		self.pause["command"] = self.pauseMovie
-		self.pause.grid(row=2, column=2, padx=2, pady=2)
+		self.pause.grid(row=1, column=2, padx=2, pady=2)
 		
 		# Create Teardown button
 		self.teardown = Button(self.master, width=20, padx=3, pady=3)
 		self.teardown["text"] = "Teardown"
-		self.teardown["bg"] = "#3A8EDB"
-		self.pause["fg"] = "white"
-		self.teardown["command"] = self.resetMovie
-		self.teardown.grid(row=2, column=3, padx=2, pady=2)
+		self.teardown["command"] = self.exitClient
+		self.teardown.grid(row=1, column=3, padx=2, pady=2)
 		
 		# Create a label to display the movie
 		self.label = Label(self.master, height=19, bg="#A5D2EB")
@@ -103,7 +77,7 @@ class Client:
 		if self.state == self.INIT:
 			self.sendRtspRequest(self.SETUP)
 	
-	def resetMovie(self):
+	def exitClient(self):
 		"""Teardown button handler."""
 		if self.checkPlay:
 			self.sendRtspRequest(self.TEARDOWN)
@@ -112,7 +86,6 @@ class Client:
 					os.remove(i)
 			time.sleep(1)
 			self.state = self.INIT
-			# self.master.protocol("WM_DELETE_WINDOW", self.handler)
 			self.rtspSeq = 0
 			self.sessionId = 0
 			self.requestSent = -1
@@ -148,22 +121,27 @@ class Client:
 				data = self.rtpSocket.recv(20480) # -> đọc tối đa 20480 bytes
 				if data:
 					rtpPacket = RtpPacket()
-					rtpPacket.decode(data) # giải mã data
+					rtpPacket.decode(data) # Decode data
 					
 					currFrameNbr = rtpPacket.seqNum()
 					print("Current Seq Num: " + str(currFrameNbr))
 
-					try:
-						print(self.frameNbr +1,'--',rtpPacket.seqNum())
-						if self.frameNbr + 1 != rtpPacket.seqNum():
-							self.counter += 1 #flag khi mất gói tin
-							print('!' * 60 + "\nPACKET LOSS\n" + '!' * 60)
-						currFrameNbr = rtpPacket.seqNum() # gán làm qq gì ?
-					# version = rtpPacket.version()
-					except:
-						print("seqNum() Loi \n")
-						traceback.print_exc(file=sys.stdout)
-						print("\n")
+					print(self.frameNbr + 1,'--',rtpPacket.seqNum())
+					if self.frameNbr + 1 != rtpPacket.seqNum():
+						self.counter += 1 # Incre counter when detect loss package
+						print('!' * 60 + "\nPACKET LOSS\n" + '!' * 60)
+					
+					# try:
+					# 	print(self.frameNbr + 1,'--',rtpPacket.seqNum())
+					# 	if self.frameNbr + 1 != rtpPacket.seqNum():
+					# 		self.counter += 1 # Incre counter when detect loss package
+					# 		print('!' * 60 + "\nPACKET LOSS\n" + '!' * 60)
+					# 	currFrameNbr = rtpPacket.seqNum()
+					# except:
+					# 	print("seqNum() Loi \n")
+					# 	traceback.print_exc(file=sys.stdout)
+					# 	print("\n")
+					
 					if currFrameNbr > self.frameNbr: # Discard the late packet
 						self.frameNbr = currFrameNbr
 						self.updateMovie(self.writeFrame(rtpPacket.getPayload()))
@@ -203,7 +181,7 @@ class Client:
 			tkinter.messagebox.showwarning('Connection Failed', 'Connection to \'%s\' failed.' %self.serverAddr)
 	
 	def sendRtspRequest(self, requestCode):
-		"""Send RTSP request to the server."""	# -> Gửi Request tới server
+		"""Send RTSP request to the server."""
 		#-------------
 		# TO COMPLETE
 		#-------------
